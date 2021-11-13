@@ -3,7 +3,7 @@ Enter benchmark settings below:
 /--------- Lower limit ---------/
 0
 /--------- Upper limit ----------/
-5000
+10000
 /--------- Step ----------/
 50
 /--------- Number of each size array sorts ---------/

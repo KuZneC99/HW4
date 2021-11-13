@@ -1,20 +1,39 @@
 #include "arr_handler.h"
 
+
+void get_settings(int* lower_lim, int* upper_lim, int* step, int* retries) {
+    FILE *settings;
+    settings = fopen("../benchmark_settings.txt", "r");
+    fscanf(settings, "%*[^\n]\n");
+    fscanf(settings, "%*[^\n]\n");
+    fscanf(settings, "%d\n", lower_lim);
+    fscanf(settings, "%*[^\n]\n");
+    fscanf(settings, "%d\n", upper_lim);
+    fscanf(settings, "%*[^\n]\n");
+    fscanf(settings, "%d\n", step);
+    fscanf(settings, "%*[^\n]\n");
+    fscanf(settings, "%d\n", retries);
+}
+
 void benchmark(void) {
     int* array;
     int* array_copy;
     clock_t start, end;
+
     FILE *results;
     results = fopen("../results.csv", "w");
     fprintf(results, "size,merge sort,selection sort\n");
 
-    for (int size = 0; size <= 5000; size += 50) {
+    int lower_lim, upper_lim, step, retries;
+    get_settings(&lower_lim, &upper_lim, &step, &retries);
+
+    for (int size = lower_lim; size <= upper_lim; size += step) {
 
         double ms_time_taken;
         double ss_time_taken;
         array_copy = (int*)malloc(size * sizeof(int));
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < retries; i++) {
             srand(time(NULL));
             array = arr_gen(size);
 
@@ -24,14 +43,16 @@ void benchmark(void) {
             start = clock();
             merge_sort(array, 0, size - 1);
             end = clock();
-            ms_time_taken += ((double)(end - start)) / (5 * CLOCKS_PER_SEC);
+            ms_time_taken += ((double)(end - start)) / (retries * CLOCKS_PER_SEC);
 
             start = clock();
             selection_sort(array, size);
             end = clock();
-            ss_time_taken += ((double)(end - start)) / (5 * CLOCKS_PER_SEC);
+            ss_time_taken += ((double)(end - start)) / (retries * CLOCKS_PER_SEC);
         }
         fprintf(results, "%d,%f,%f\n", size, ms_time_taken, ss_time_taken);
     }
     fclose(results);
+
+    system("python3 ../plots.py");
 }
