@@ -27,10 +27,12 @@ void benchmark(void) {
     int lower_lim, upper_lim, step, retries;
     get_settings(&lower_lim, &upper_lim, &step, &retries);
 
+
     for (int size = lower_lim; size <= upper_lim; size += step) {
 
-        double ms_time_taken;
-        double ss_time_taken;
+        double ms_time_taken = 0;
+        double ss_time_taken = 0;
+        double ms_res, ss_res;
         array_copy = (int*)malloc(size * sizeof(int));
 
         for (int i = 0; i < retries; i++) {
@@ -43,15 +45,19 @@ void benchmark(void) {
             start = clock();
             merge_sort(array, 0, size - 1);
             end = clock();
-            ms_time_taken += ((double)(end - start)) / (retries * CLOCKS_PER_SEC);
+            ms_time_taken += (end - start);
 
             start = clock();
             selection_sort(array, size);
             end = clock();
-            ss_time_taken += ((double)(end - start)) / (retries * CLOCKS_PER_SEC);
+            ss_time_taken += (end - start);
         }
-        fprintf(results, "%d,%f,%f\n", size, ms_time_taken, ss_time_taken);
+
+        ms_res = (double)ms_time_taken / (retries * CLOCKS_PER_SEC);
+        ss_res = (double)ss_time_taken / (retries * CLOCKS_PER_SEC);
+        fprintf(results, "%d,%f,%f\n", size, ms_res, ss_res);
     }
+
     fclose(results);
 
     system("python3 ../plots.py");
